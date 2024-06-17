@@ -1,4 +1,5 @@
 mesop
 openai
 flask
+python-dotenv
 # Add other libraries your app depends on
