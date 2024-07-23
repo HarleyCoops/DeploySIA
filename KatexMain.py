@@ -7,12 +7,10 @@ from openai import OpenAI
 
 import mesop as me
 import mesop.labs as mel
+from katex_component import katex_component
 
 # Load environment variables
 load_dotenv()
-
-
-
 
 # OpenAI API Configuration
 openai.api_key = os.getenv('OPENAI_API_KEY')
@@ -31,7 +29,6 @@ ROOT_BOX_STYLE = me.Style(
     display="flex",
     flex_direction="column",
 )
-
 
 # Mesop Page Setup
 @me.page(path="/", title="SIA 63")
@@ -55,11 +52,12 @@ def transform(input: str, history: List[mel.ChatMessage]):
         run = client.beta.threads.runs.create(
             thread_id=thread.id,
             assistant_id=assistant_id,
-            # stream=True,  # Enable streaming
         )
 
         # 4. Retrieve and Yield Assistant's Responses
-        yield from retrieve_and_yield_messages(thread.id, run.id) 
+        for response in retrieve_and_yield_messages(thread.id, run.id):
+            # Wrap the response in a KaTeX web component
+            yield katex_component(content=response)
 
     except Exception as e:
         print(f"Error in transform function: {e}")
@@ -85,4 +83,4 @@ def retrieve_and_yield_messages(thread_id, run_id):
             time.sleep(1)  # Wait before checking again
         else:
             print(f"Unexpected run status: {run.status}")
-            break  
+            break
